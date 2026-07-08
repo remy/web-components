@@ -1,0 +1,50 @@
+* {
+  box-sizing: border-box;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen- Sans,
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    sans-serif;
+}
+
+html {
+  pre,
+  code {
+    font-family: Menlo, Monaco, Consolas, monospace;
+  }
+
+  input,
+  select,
+  button {
+    font-size: 1rem;
+  }
+
+  button,
+  label {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  fieldset {
+    display: grid;
+    grid-template-areas: 'what time' 'apply time';
+
+    div:has(> label) {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 4px;
+    }
+  }
+
+  .group {
+    grid-area: time;
+  }
+}

@@ -55,9 +55,9 @@ setInterval(() => {
     const inRange = when.inRange();
 
     if (inRange) {
-      when[when.do]();
+      when[when.what]();
     } else {
-      when[when.do === DO_OPTIONS.HIDE ? DO_OPTIONS.SHOW : DO_OPTIONS.HIDE]();
+      when[when.what === DO_OPTIONS.HIDE ? DO_OPTIONS.SHOW : DO_OPTIONS.HIDE]();
     }
   }
 }, 1000);
@@ -65,18 +65,37 @@ setInterval(() => {
 class WhenDo extends HTMLElement {
   state = undefined;
   triggered = false;
+  #ready = false;
 
   constructor() {
-    const ref = super();
+    super();
+  }
 
-    /** @type {keyof typeof DO_OPTIONS} */
-    this.do = this.attributes.do.value || DO_OPTIONS.SHOW;
+  connectedCallback() {
+    this.init();
+    whenables.push(this);
+  }
+
+  disconnectedCallback() {
+    // remove `this` when-do from the watch list
+    const index = whenables.indexOf(this);
+    if (index > -1) {
+      whenables.splice(index, 1);
+    }
+  }
+
+  attributeChangedCallback() {
+    this.init();
+  }
+
+  init() {
+    this.what = this.attributes.what?.value || DO_OPTIONS.SHOW;
 
     if (
-      ![DO_OPTIONS.SHOW, DO_OPTIONS.HIDE, DO_OPTIONS.SCROLL].includes(this.do)
+      ![DO_OPTIONS.SHOW, DO_OPTIONS.HIDE, DO_OPTIONS.SCROLL].includes(this.what)
     ) {
       throw new Error(
-        `when-do "do" property requires either "show", "hide" or "scroll"`
+        `when-do "what" property requires either "show", "hide" or "scroll"`
       );
     }
 
@@ -85,14 +104,13 @@ class WhenDo extends HTMLElement {
     }
 
     // FIXME queue up the animations/scroll from boot time
-
     if (this.inRange()) {
-      this[this.do]();
+      this[this.what]();
     } else {
-      this[this.do === DO_OPTIONS.HIDE ? DO_OPTIONS.SHOW : DO_OPTIONS.HIDE]();
+      this[this.what === DO_OPTIONS.HIDE ? DO_OPTIONS.SHOW : DO_OPTIONS.HIDE]();
     }
 
-    whenables.push(ref);
+    this.#ready = true
   }
 
   inRange() {
@@ -102,7 +120,7 @@ class WhenDo extends HTMLElement {
 
     for (let i = 0; i < this.dates.length; i++) {
       const { from, until } = this.dates[i];
-      if (now >= from && from < until) {
+      if (now >= from && now < until) {
         res = true;
         break;
       }
@@ -112,10 +130,13 @@ class WhenDo extends HTMLElement {
   }
 
   checkTriggered() {
-    if (this.triggered === false) {
+    if (this.triggered === false && this.#ready === true) {
       this.triggered = true;
       if (this.attributes.apply) {
-        this.classList.add(this.attributes.apply.value);
+        // let the DOM apply the style changes, then on the next tick, apply the class
+        requestAnimationFrame(() => {
+          this.classList.add(this.attributes.apply.value);
+        });
       }
     }
   }
@@ -123,11 +144,8 @@ class WhenDo extends HTMLElement {
   scroll() {
     if (this.state === DO_OPTIONS.SCROLL) return; // nop
     this.show();
-    if (this.firstElementChild) {
-      this.firstElementChild.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      this.nextElementSibling.scrollIntoView({ behavior: 'smooth' });
-    }
+    let scrollTarget = this.firstElementChild || this.nextElementSibling || this.parentElement;
+    scrollTarget.scrollIntoView({ behavior: 'smooth' });
 
     this.state = DO_OPTIONS.SCROLL;
     this.checkTriggered();

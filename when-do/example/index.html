@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>when-do demo</title>
+    <link rel="stylesheet" href="./demo-style.css">
+  </head>
+
+  <body>
+    <script src="./when-do.mjs" type="module"></script>
+
+    <main>
+      <fieldset id="controls">
+        <legend>Controls</legend>
+
+        <div>
+          <label>
+            What:
+          </label>
+          <select id="what-select">
+            <option value="show">Show</option>
+            <option value="hide">Hide</option>
+            <option value="scroll">Scroll</option>
+          </select>
+        </div>
+
+        <!-- when to show using datetime -->
+
+        <!-- optional second date -->
+
+        <!-- add class on `apply` -->
+        <div class="group">
+          <div>
+            <label for="start-date">
+              Start (in N seconds):
+            </label>
+            <input type="number" id="start-date" value="5">
+          </div>
+
+          <div>
+            <label for="end-date">
+              End (optional):
+            </label>
+            <input type="number" id="end-date" placeholder="no end">
+          </div>
+          <small>End time will be start + end seconds</small>
+        </div>
+
+        <div>
+          <label for="apply-class">
+            Apply custom class (optional):
+            <input type="checkbox" id="apply-class">
+          </label>
+          <small>This will apply <code>fade-in</code> class name</small>
+        </div>
+      </fieldset>
+      <div id="result">
+        <p>Time now: <time></time></p>
+        <pre><code>
+          &lt;when-do what="show" start="2024-06-01T00:00:00Z"
+          This content will be shown between June 1, 2024 and June 30, 2024.
+          &lt;/when-do&gt;
+        </code></pre>
+        <button id="test">Test</button>
+        <div id="out"></div>
+      </div>
+    </main>
+
+    <script type="module" src="demo.mjs"></script>
+  </body>
+
+</html>
